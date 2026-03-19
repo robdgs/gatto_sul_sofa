@@ -9,7 +9,11 @@ interface SwipeCardProps {
   onSwipeRight: () => void;
 }
 
-export function SwipeCard({ question, onSwipeLeft, onSwipeRight }: SwipeCardProps) {
+export function SwipeCard({
+  question,
+  onSwipeLeft,
+  onSwipeRight,
+}: SwipeCardProps) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-300, 0, 300], [-18, 0, 18]);
   const opacity = useTransform(x, [-250, 0, 250], [0, 1, 0]);
@@ -18,14 +22,11 @@ export function SwipeCard({ question, onSwipeLeft, onSwipeRight }: SwipeCardProp
   const leftStampOpacity = useTransform(x, [-160, -60, 0], [1, 0, 0]);
   const rightStampOpacity = useTransform(x, [0, 60, 160], [0, 0, 1]);
 
-  const borderColor = useTransform(
-    x,
-    (v) => {
-      if (v < -60) return `rgba(226,75,74,${Math.min(0.6, (-v - 60) / 100)})`;
-      if (v > 60) return `rgba(99,153,34,${Math.min(0.6, (v - 60) / 100)})`;
-      return "rgba(0,0,0,0.08)";
-    },
-  );
+  const borderColor = useTransform(x, (v) => {
+    if (v < -60) return `rgba(226,75,74,${Math.min(0.6, (-v - 60) / 100)})`;
+    if (v > 60) return `rgba(99,153,34,${Math.min(0.6, (v - 60) / 100)})`;
+    return "rgba(0,0,0,0.08)";
+  });
 
   async function triggerSwipe(direction: "left" | "right") {
     const target = direction === "left" ? -500 : 500;
@@ -86,7 +87,9 @@ export function SwipeCard({ question, onSwipeLeft, onSwipeRight }: SwipeCardProp
             {question.title}
           </h2>
 
-          <p className="text-xs text-gray-400">Trascina la carta o usa i pulsanti</p>
+          <p className="text-xs text-gray-400">
+            Trascina la carta o usa i pulsanti
+          </p>
         </motion.div>
       </motion.div>
 
@@ -97,14 +100,18 @@ export function SwipeCard({ question, onSwipeLeft, onSwipeRight }: SwipeCardProp
           className="flex-1 group flex flex-col items-center gap-1 py-3 px-4 rounded-2xl border border-gray-200 bg-white hover:border-red-300 hover:bg-red-50 transition-all duration-150 active:scale-95"
         >
           <span className="text-lg">←</span>
-          <span className="text-sm font-medium text-gray-800 group-hover:text-red-600 transition-colors">{question.left}</span>
+          <span className="text-sm font-medium text-gray-800 group-hover:text-red-600 transition-colors">
+            {question.left}
+          </span>
         </button>
         <button
           onClick={() => triggerSwipe("right")}
           className="flex-1 group flex flex-col items-center gap-1 py-3 px-4 rounded-2xl border border-gray-200 bg-white hover:border-green-400 hover:bg-green-50 transition-all duration-150 active:scale-95"
         >
           <span className="text-lg">→</span>
-          <span className="text-sm font-medium text-gray-800 group-hover:text-green-700 transition-colors">{question.right}</span>
+          <span className="text-sm font-medium text-gray-800 group-hover:text-green-700 transition-colors">
+            {question.right}
+          </span>
         </button>
       </div>
     </div>
