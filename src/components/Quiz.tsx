@@ -105,7 +105,7 @@ export function Quiz() {
 
   if (done) {
     return (
-      <div className="w-full max-w-sm px-4">
+      <div className="w-full max-w-sm min-h-[100dvh] flex items-center justify-center">
         <ResultScreen scores={scores} onRestart={resetQuiz} />
       </div>
     );
@@ -115,33 +115,33 @@ export function Quiz() {
 
   if (!q) {
     return (
-      <div className="w-full max-w-sm px-4">
+      <div className="w-full max-w-sm min-h-[100dvh] flex items-center justify-center">
         <ResultScreen scores={scores} onRestart={resetQuiz} />
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-sm px-4 flex flex-col gap-3 sm:gap-4">
+    <div className="w-full max-w-sm min-h-[100dvh] flex flex-col justify-center gap-3.5 sm:gap-4">
       <div className="w-full rounded-2xl overflow-hidden border border-white/40 shadow-lg">
         <Image
           src="/gatti/header.jpg"
           alt="Header del test dei gatti"
           width={900}
           height={420}
-          className="w-full h-[7.5rem] sm:h-[8.5rem] object-cover"
+          className="w-full h-[10rem] sm:h-[11.5rem] object-cover object-center"
           priority
         />
       </div>
 
-      <div className="text-center px-1">
-        <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight drop-shadow-sm leading-tight">
+      <div className="text-center px-1 flex flex-col items-center gap-2">
+        <h1 className="text-[1.35rem] sm:text-3xl font-semibold text-white tracking-tight drop-shadow-sm leading-tight">
           🐱 Scopri il tuo gatto
         </h1>
-        <p className="text-xs sm:text-sm text-white/90 mt-1.5">
+        <p className="text-[11px] sm:text-sm text-white/90">
           Un test rapido per capire quale gatto sul sofà ti rappresenta davvero.
         </p>
-        <div className="mt-2 flex items-center justify-center gap-2 text-[10px] sm:text-[11px]">
+        <div className="flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px]">
           <span className="rounded-full border border-white/30 bg-white/15 px-2.5 py-1 text-white/95">
             37 domande
           </span>
@@ -152,7 +152,7 @@ export function Quiz() {
       </div>
       <ProgressBar current={currentIndex + 1} total={questions.length} />
 
-      <div className="relative h-[45vh] min-h-[290px] max-h-[360px] sm:h-[392px]">
+      <div className="relative min-h-[290px] max-h-[360px] sm:h-[392px]">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={q.id}

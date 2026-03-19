@@ -17,7 +17,7 @@ export function ProgressBar({ current, total }: ProgressBarProps) {
         : `Mancano ${remaining} domande`;
 
   return (
-    <div className="w-full flex flex-col gap-2">
+    <div className="w-full flex flex-col gap-2.5">
       <div
         className="flex justify-between text-xs text-gray-100/90 font-mono"
         aria-live="polite"
