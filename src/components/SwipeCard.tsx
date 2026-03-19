@@ -28,9 +28,7 @@ export function SwipeCard({
     return "rgba(0,0,0,0.08)";
   });
 
-  async function triggerSwipe(direction: "left" | "right") {
-    const target = direction === "left" ? -500 : 500;
-    await animate(x, target, { duration: 0.22, ease: [0.22, 1, 0.36, 1] });
+  function triggerSwipe(direction: "left" | "right") {
     if (direction === "left") onSwipeLeft();
     else onSwipeRight();
   }

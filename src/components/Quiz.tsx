@@ -47,7 +47,7 @@ export function Quiz() {
           setCurrentIndex((i) => i + 1);
         }
         setDirection(null);
-      }, 350);
+      }, 300);
     },
     [currentIndex],
   );
@@ -87,11 +87,11 @@ export function Quiz() {
       <ProgressBar current={currentIndex + 1} total={questions.length} />
 
       <div className="relative" style={{ height: 392 }}>
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={q.id}
             className="absolute inset-0"
-            initial={{ opacity: 0, scale: 0.94, y: 16 }}
+            initial={false}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{
               opacity: 0,
