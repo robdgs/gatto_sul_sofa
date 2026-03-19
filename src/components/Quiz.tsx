@@ -25,7 +25,9 @@ export function Quiz() {
   const [direction, setDirection] = useState<"left" | "right" | null>(null);
   const prefersReducedMotion = useReducedMotion();
   const answeringRef = useRef(false);
-  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const resetQuiz = useCallback(() => {
     if (transitionTimeoutRef.current) {
