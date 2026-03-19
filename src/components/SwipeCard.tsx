@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
-import { useRef } from "react";
 import { Question } from "@/data/questions";
 
 interface SwipeCardProps {
@@ -18,8 +17,6 @@ export function SwipeCard({ question, onSwipeLeft, onSwipeRight }: SwipeCardProp
   // Stamp opacities
   const leftStampOpacity = useTransform(x, [-160, -60, 0], [1, 0, 0]);
   const rightStampOpacity = useTransform(x, [0, 60, 160], [0, 0, 1]);
-  const leftBorderColor = useTransform(x, [-160, -60, 0], ["rgba(226,75,74,0.6)", "rgba(226,75,74,0)", "rgba(226,75,74,0)"]);
-  const rightBorderColor = useTransform(x, [0, 60, 160], ["rgba(99,153,34,0)", "rgba(99,153,34,0)", "rgba(99,153,34,0.6)"]);
 
   const borderColor = useTransform(
     x,
@@ -27,14 +24,12 @@ export function SwipeCard({ question, onSwipeLeft, onSwipeRight }: SwipeCardProp
       if (v < -60) return `rgba(226,75,74,${Math.min(0.6, (-v - 60) / 100)})`;
       if (v > 60) return `rgba(99,153,34,${Math.min(0.6, (v - 60) / 100)})`;
       return "rgba(0,0,0,0.08)";
-    }
+    },
   );
-
-  const isDragging = useRef(false);
 
   async function triggerSwipe(direction: "left" | "right") {
     const target = direction === "left" ? -500 : 500;
-    await animate(x, target, { duration: 0.3, ease: [0.4, 0, 0.2, 1] });
+    await animate(x, target, { duration: 0.22, ease: [0.22, 1, 0.36, 1] });
     if (direction === "left") onSwipeLeft();
     else onSwipeRight();
   }
@@ -43,23 +38,29 @@ export function SwipeCard({ question, onSwipeLeft, onSwipeRight }: SwipeCardProp
     <div className="relative w-full h-full flex flex-col items-center gap-4">
       {/* Card */}
       <motion.div
-        style={{ x, rotate, opacity }}
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.8}
-        onDragStart={() => { isDragging.current = true; }}
+        dragElastic={0.22}
+        dragMomentum={false}
         onDragEnd={(_, info) => {
-          isDragging.current = false;
-          if (info.offset.x < -100) {
+          const shouldSwipeLeft = info.offset.x < -90 || info.velocity.x < -500;
+          const shouldSwipeRight = info.offset.x > 90 || info.velocity.x > 500;
+
+          if (shouldSwipeLeft) {
             triggerSwipe("left");
-          } else if (info.offset.x > 100) {
+          } else if (shouldSwipeRight) {
             triggerSwipe("right");
           } else {
-            animate(x, 0, { type: "spring", stiffness: 300, damping: 28 });
+            animate(x, 0, {
+              type: "spring",
+              stiffness: 420,
+              damping: 34,
+              mass: 0.7,
+            });
           }
         }}
-        className="absolute w-full cursor-grab active:cursor-grabbing select-none"
-        style={{ x, rotate, opacity, touchAction: "none" } as any}
+        className="absolute w-full cursor-grab active:cursor-grabbing select-none will-change-transform"
+        style={{ x, rotate, opacity, touchAction: "pan-y" }}
       >
         <motion.div
           style={{ borderColor }}
