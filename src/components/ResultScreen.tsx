@@ -1,23 +1,52 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { catProfiles, CatProfile } from "@/data/questions";
 
 interface ResultScreenProps {
   scores: Record<number, number>;
-  onReset: () => void;
 }
 
-export function ResultScreen({ scores, onReset }: ResultScreenProps) {
+export function ResultScreen({ scores }: ResultScreenProps) {
   const winnerId = Number(
-    Object.keys(scores).reduce((a, b) => (scores[Number(a)] > scores[Number(b)] ? a : b))
+    Object.keys(scores).reduce((a, b) =>
+      scores[Number(a)] > scores[Number(b)] ? a : b,
+    ),
   );
   const winner: CatProfile = catProfiles[winnerId];
 
   const allCats = Object.values(catProfiles);
-  const maxScore = Math.max(...Object.values(scores));
   const minScore = Math.min(...Object.values(scores));
-  const range = maxScore - minScore || 1;
+  const adjustedScores = Object.fromEntries(
+    allCats.map((cat) => [cat.id, scores[cat.id] - minScore + 1]),
+  ) as Record<number, number>;
+  const adjustedTotal = Object.values(adjustedScores).reduce(
+    (total, value) => total + value,
+    0,
+  );
+  const rawPercentages = allCats.map((cat) => ({
+    id: cat.id,
+    raw: (adjustedScores[cat.id] / adjustedTotal) * 100,
+  }));
+  const floored = rawPercentages.map((entry) => ({
+    id: entry.id,
+    pct: Math.floor(entry.raw),
+    remainder: entry.raw - Math.floor(entry.raw),
+  }));
+  let remaining = 100 - floored.reduce((total, entry) => total + entry.pct, 0);
+
+  floored
+    .sort((a, b) => b.remainder - a.remainder)
+    .forEach((entry) => {
+      if (remaining <= 0) return;
+      entry.pct += 1;
+      remaining -= 1;
+    });
+
+  const percentages = Object.fromEntries(
+    floored.map((entry) => [entry.id, entry.pct]),
+  ) as Record<number, number>;
 
   return (
     <motion.div
@@ -31,30 +60,52 @@ export function ResultScreen({ scores, onReset }: ResultScreenProps) {
         <motion.div
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, type: "spring", stiffness: 260, damping: 20 }}
-          className="text-6xl"
+          transition={{
+            delay: 0.2,
+            type: "spring",
+            stiffness: 260,
+            damping: 20,
+          }}
+          className="w-28 h-28 rounded-full overflow-hidden border border-gray-100 shadow-sm bg-white"
         >
-          {winner.emoji}
+          <Image
+            src={winner.image}
+            alt={`Foto di ${winner.name}`}
+            width={112}
+            height={112}
+            className="w-full h-full object-cover"
+            priority
+          />
         </motion.div>
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">Sei {winner.name}!</h2>
-          <p className="text-sm text-violet-500 font-medium mt-1">{winner.breed}</p>
+          <h2 className="text-2xl font-semibold text-gray-900">
+            Sei {winner.name}!
+          </h2>
+          <p className="text-sm text-violet-500 font-medium mt-1">
+            {winner.breed}
+          </p>
         </div>
-        <p className="text-sm text-gray-500 leading-relaxed">{winner.profile}</p>
+        <p className="text-sm text-gray-500 leading-relaxed">
+          {winner.profile}
+        </p>
         <div className="w-full border-t border-gray-100 pt-4 mt-1">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Serie consigliate</p>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            Serie consigliate
+          </p>
           <p className="text-sm text-gray-700 leading-relaxed">{winner.tv}</p>
         </div>
       </div>
 
-      {/* Score breakdown */}
+      {/* Percent breakdown */}
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col gap-3">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Classifica</h3>
+        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+          Percentuali
+        </h3>
         {allCats
           .sort((a, b) => scores[b.id] - scores[a.id])
           .map((cat, i) => {
-            const score = scores[cat.id];
-            const w = Math.max(4, Math.round(((score - minScore) / range) * 100));
+            const pct = percentages[cat.id];
+            const w = Math.max(4, pct);
             const isWinner = cat.id === winnerId;
             return (
               <motion.div
@@ -65,29 +116,30 @@ export function ResultScreen({ scores, onReset }: ResultScreenProps) {
                 className="flex items-center gap-3"
               >
                 <span className="text-lg w-6 text-center">{cat.emoji}</span>
-                <span className={`text-sm w-24 truncate ${isWinner ? "font-semibold text-gray-900" : "text-gray-500"}`}>
+                <span
+                  className={`text-sm w-24 truncate ${isWinner ? "font-semibold text-gray-900" : "text-gray-500"}`}
+                >
                   {cat.name}
                 </span>
                 <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${w}%` }}
-                    transition={{ delay: 0.5 + i * 0.07, duration: 0.6, ease: "easeOut" }}
+                    transition={{
+                      delay: 0.5 + i * 0.07,
+                      duration: 0.6,
+                      ease: "easeOut",
+                    }}
                     className={`h-full rounded-full ${isWinner ? "bg-violet-500" : "bg-gray-300"}`}
                   />
                 </div>
-                <span className="text-xs text-gray-400 w-6 text-right font-mono">{score}</span>
+                <span className="text-xs text-gray-400 w-6 text-right font-mono">
+                  {pct}%
+                </span>
               </motion.div>
             );
           })}
       </div>
-
-      <button
-        onClick={onReset}
-        className="w-full py-3 rounded-2xl border border-gray-200 bg-white text-gray-700 font-medium text-sm hover:bg-gray-50 hover:border-gray-300 active:scale-95 transition-all duration-150"
-      >
-        Rifai il test
-      </button>
     </motion.div>
   );
 }

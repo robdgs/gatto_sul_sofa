@@ -3,18 +3,43 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8f7f4;
+  --background: #230b28;
   --foreground: #1a1a1a;
+  --bg-deep: #230b28;
+  --bg-purple: #561a54;
+  --bg-cyan: #13e6cd;
+  --bg-orange: #d4622a;
+  --bg-gold: #ce961a;
+  --bg-cream: #f1d8a2;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
+}
+
+.quiz-bg {
+  background:
+    radial-gradient(circle at 18% 16%, #13e6cd88 0%, transparent 38%),
+    radial-gradient(circle at 82% 18%, #d4622a88 0%, transparent 34%),
+    radial-gradient(circle at 52% 78%, #ce961a80 0%, transparent 44%),
+    linear-gradient(
+      155deg,
+      var(--bg-deep) 0%,
+      var(--bg-purple) 42%,
+      #581e2d 72%,
+      var(--bg-cream) 100%
+    );
 }
