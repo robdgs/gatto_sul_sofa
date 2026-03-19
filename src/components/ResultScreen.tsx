@@ -1,14 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { catProfiles, CatProfile } from "@/data/questions";
 
 interface ResultScreenProps {
   scores: Record<number, number>;
+  onRestart: () => void;
 }
 
-export function ResultScreen({ scores }: ResultScreenProps) {
+export function ResultScreen({ scores, onRestart }: ResultScreenProps) {
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
   const winnerId = Number(
     Object.keys(scores).reduce((a, b) =>
       scores[Number(a)] > scores[Number(b)] ? a : b,
@@ -48,6 +51,44 @@ export function ResultScreen({ scores }: ResultScreenProps) {
     floored.map((entry) => [entry.id, entry.pct]),
   ) as Record<number, number>;
 
+  const imageCropByCat: Record<
+    number,
+    { scale: number; objectPosition: string }
+  > = {
+    1: { scale: 1.42, objectPosition: "57% 50%" },
+    2: { scale: 1.48, objectPosition: "51% 46%" },
+    3: { scale: 1.42, objectPosition: "50% 45%" },
+    4: { scale: 1.5, objectPosition: "50% 48%" },
+    5: { scale: 1.56, objectPosition: "50% 43%" },
+  };
+
+  const winnerCrop = imageCropByCat[winnerId] ?? {
+    scale: 1.45,
+    objectPosition: "50% 50%",
+  };
+
+  async function handleShare() {
+    const text = `Io sono ${winner.name} (${winner.breed}) nel quiz dei gatti 🐱. E tu?`;
+    const url = typeof window !== "undefined" ? window.location.href : "";
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Scopri il tuo gatto",
+          text,
+          url,
+        });
+        setShareStatus("Risultato condiviso ✅");
+        return;
+      }
+
+      await navigator.clipboard.writeText(`${text} ${url}`.trim());
+      setShareStatus("Link copiato negli appunti ✅");
+    } catch {
+      setShareStatus("Condivisione non disponibile su questo dispositivo");
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -66,14 +107,18 @@ export function ResultScreen({ scores }: ResultScreenProps) {
             stiffness: 260,
             damping: 20,
           }}
-          className="w-28 h-28 rounded-full overflow-hidden border border-gray-100 shadow-sm bg-white"
+          className="w-36 h-36 rounded-full overflow-hidden border border-gray-100 shadow-sm bg-white"
         >
           <Image
             src={winner.image}
             alt={`Foto di ${winner.name}`}
-            width={112}
-            height={112}
+            width={144}
+            height={144}
             className="w-full h-full object-cover"
+            style={{
+              objectPosition: winnerCrop.objectPosition,
+              transform: `scale(${winnerCrop.scale})`,
+            }}
             priority
           />
         </motion.div>
@@ -95,6 +140,26 @@ export function ResultScreen({ scores }: ResultScreenProps) {
           <p className="text-sm text-gray-700 leading-relaxed">{winner.tv}</p>
         </div>
       </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          onClick={onRestart}
+          className="rounded-2xl border border-white/30 bg-white/15 px-4 py-3 text-sm font-medium text-white hover:bg-white/25 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+        >
+          Rifai il test
+        </button>
+        <button
+          onClick={handleShare}
+          className="rounded-2xl border border-[#13e6cd] bg-[#13e6cd] px-4 py-3 text-sm font-medium text-[#230b28] hover:bg-[#10c9b3] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#13e6cd] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+        >
+          Condividi risultato
+        </button>
+      </div>
+      {shareStatus ? (
+        <p className="text-center text-xs text-white/85" aria-live="polite">
+          {shareStatus}
+        </p>
+      ) : null}
 
       {/* Percent breakdown */}
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col gap-3">
